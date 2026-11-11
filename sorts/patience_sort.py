@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from bisect import bisect_left
 from functools import total_ordering
 from heapq import merge
-from typing import List
+from typing import Protocol
 
 """
 A pure Python implementation of the patience sort algorithm
@@ -18,17 +20,23 @@ python3 patience_sort.py
 """
 
 
+class Comparable(Protocol):
+    def __lt__(self, other: object, /) -> bool: ...
+
+
 @total_ordering
-class Stack(list):
-    def __lt__(self, other):
+class Stack[T: Comparable](list[T]):
+    def __lt__(self, other: Stack[T]) -> bool:
         return self[-1] < other[-1]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Stack):
+            return NotImplemented
         return self[-1] == other[-1]
 
 
-def patience_sort(collection: list) -> list:
-    """A pure implementation of quick sort algorithm in Python
+def patience_sort[T: Comparable](collection: list[T]) -> list[T]:
+    """A pure implementation of patience sort algorithm in Python
 
     :param collection: some mutable ordered collection with heterogeneous
     comparable items inside
@@ -43,8 +51,19 @@ def patience_sort(collection: list) -> list:
 
     >>> patience_sort([-3, -17, -48])
     [-48, -17, -3]
+
+    >>> patience_sort(['d', 'a', 'b', 'e']) == sorted(['d', 'a', 'b', 'e'])
+    True
+
+    >>> patience_sort([3.3, 1.1, 2.2])
+    [1.1, 2.2, 3.3]
+
+    >>> patience_sort([1, "a"])  # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+        ...
+    TypeError: '<' not supported between instances of 'str' and 'int'
     """
-    stacks: List[Stack] = []
+    stacks: list[Stack] = []
     # sort into stacks
     for element in collection:
         new_stacks = Stack([element])
@@ -55,7 +74,7 @@ def patience_sort(collection: list) -> list:
             stacks.append(new_stacks)
 
     # use a heap-based merge to merge stack efficiently
-    collection[:] = merge(*[reversed(stack) for stack in stacks])
+    collection[:] = merge(*(reversed(stack) for stack in stacks))
     return collection
 
 

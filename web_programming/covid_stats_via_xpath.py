@@ -1,23 +1,86 @@
 """
-This is to show simple COVID19 info fetching from worldometers site using lxml
-* The main motivation to use lxml in place of bs4 is that it is faster and therefore
-more convenient to use in Python web projects (e.g. Django or Flask-based)
+This script demonstrates fetching simple COVID-19 statistics from the
+Worldometers archive site using lxml. lxml is chosen over BeautifulSoup
+for its speed and convenience in Python web projects (such as Django or
+Flask).
+
+uv run --script web_programming/covid_stats_via_xpath.py
 """
 
-from collections import namedtuple
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "httpx2",
+#     "lxml",
+# ]
+# ///
+from __future__ import annotations
 
-import requests
-from lxml import html  # type: ignore
+import argparse
+import logging
+from typing import NamedTuple
 
-covid_data = namedtuple("covid_data", "cases deaths recovered")
+import httpx2
+from lxml import html
 
 
-def covid_stats(url: str = "https://www.worldometers.info/coronavirus/") -> covid_data:
+class CovidData(NamedTuple):
+    cases: str
+    deaths: str
+    recovered: str
+
+
+def covid_stats(
+    url: str = (
+        "https://web.archive.org/web/20250825095350/"
+        "https://www.worldometers.info/coronavirus/"
+    ),
+) -> CovidData:
     xpath_str = '//div[@class = "maincounter-number"]/span/text()'
-    return covid_data(*html.fromstring(requests.get(url).content).xpath(xpath_str))
+    try:
+        response = httpx2.get(url, timeout=10).raise_for_status()
+    except httpx2.TimeoutException:
+        logging.error(
+            "Request timed out. Please check your network connection "
+            "or try again later."
+        )
+        return CovidData("N/A", "N/A", "N/A")
+    except httpx2.HTTPStatusError as e:
+        logging.error(f"HTTP error occurred: {e}")
+        return CovidData("N/A", "N/A", "N/A")
+    data: list[str] = html.fromstring(response.content).xpath(xpath_str)
+    if len(data) != 3:
+        logging.warning("Unexpected data format. The page structure may have changed.")
+        return CovidData("N/A", "N/A", "N/A")
+
+    return CovidData(*data)
 
 
-fmt = """Total COVID-19 cases in the world: {}
-Total deaths due to COVID-19 in the world: {}
-Total COVID-19 patients recovered in the world: {}"""
-print(fmt.format(*covid_stats()))
+def main() -> None:
+    """CLI entry point."""
+    parser = argparse.ArgumentParser(
+        description="Fetch COVID-19 statistics from Worldometers (archived)."
+    )
+    parser.add_argument(
+        "--url",
+        type=str,
+        default=(
+            "https://web.archive.org/web/20250825095350/"
+            "https://www.worldometers.info/coronavirus/"
+        ),
+        help="Custom archive URL (default: latest snapshot).",
+    )
+    # args = parser.parse_args()
+    args, _ = parser.parse_known_args()
+
+    stats = covid_stats(args.url)
+    fmt = (
+        "Total COVID-19 cases in the world: {}\n"
+        "Total deaths due to COVID-19 in the world: {}\n"
+        "Total COVID-19 patients recovered in the world: {}"
+    )
+    print(fmt.format(*stats))
+
+
+if __name__ == "__main__":
+    main()

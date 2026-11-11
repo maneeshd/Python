@@ -1,44 +1,46 @@
-# flake8: noqa
-
 """
 This is pure Python implementation of tree traversal algorithms
 """
+
 from __future__ import annotations
 
 import queue
 
 
 class TreeNode:
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         self.data = data
         self.right = None
         self.left = None
 
 
-def build_tree():
+def build_tree() -> TreeNode:
+    """
+    Builds a binary tree by receiving input and returns the root node of the tree.
+    Stops and returns the tree once 'N' is entered.
+    """
     print("\n********Press N to stop entering at any point of time********\n")
-    check = input("Enter the value of the root node: ").strip().lower() or "n"
-    if check == "n":
-        return None
+    check = input("Enter the value of the root node: ").strip().lower()
     q: queue.Queue = queue.Queue()
     tree_node = TreeNode(int(check))
     q.put(tree_node)
     while not q.empty():
         node_found = q.get()
-        msg = "Enter the left node of %s: " % node_found.data
+        msg = f"Enter the left node of {node_found.data}: "
         check = input(msg).strip().lower() or "n"
         if check == "n":
             return tree_node
         left_node = TreeNode(int(check))
         node_found.left = left_node
         q.put(left_node)
-        msg = "Enter the right node of %s: " % node_found.data
+        msg = f"Enter the right node of {node_found.data}: "
         check = input(msg).strip().lower() or "n"
         if check == "n":
             return tree_node
         right_node = TreeNode(int(check))
         node_found.right = right_node
         q.put(right_node)
+    raise ValueError("Something went wrong")
 
 
 def pre_order(node: TreeNode) -> None:
@@ -157,17 +159,17 @@ def level_order_actual(node: TreeNode) -> None:
     q: queue.Queue = queue.Queue()
     q.put(node)
     while not q.empty():
-        list = []
+        list_ = []
         while not q.empty():
             node_dequeued = q.get()
             print(node_dequeued.data, end=",")
             if node_dequeued.left:
-                list.append(node_dequeued.left)
+                list_.append(node_dequeued.left)
             if node_dequeued.right:
-                list.append(node_dequeued.right)
+                list_.append(node_dequeued.right)
         print()
-        for node in list:
-            q.put(node)
+        for inner_node in list_:
+            q.put(inner_node)
 
 
 # iteration version
@@ -261,6 +263,20 @@ def post_order_iter(node: TreeNode) -> None:
 
 
 def prompt(s: str = "", width=50, char="*") -> str:
+    """Return a prompt string padded to the specified width.
+
+    >>> [prompt("Python", width=width) for width in range(8, 13)]
+    [' Python ', ' Python *', '* Python *', '* Python **', '** Python **']
+
+    >>> prompt("Python", width=40, char=chr(0x1F40D))
+    '🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍 Python 🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍🐍'
+
+    >>> len(prompt("Python"))
+    50
+
+    >>> prompt("Python", -200)
+    ' Python '
+    """
     if not s:
         return "\n" + width * char
     left, extra = divmod(width - len(s) - 2, 2)
@@ -273,7 +289,7 @@ if __name__ == "__main__":
     doctest.testmod()
     print(prompt("Binary Tree Traversals"))
 
-    node = build_tree()
+    node: TreeNode = build_tree()
     print(prompt("Pre Order Traversal"))
     pre_order(node)
     print(prompt() + "\n")

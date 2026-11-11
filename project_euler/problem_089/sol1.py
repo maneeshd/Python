@@ -76,12 +76,13 @@ def generate_roman_numerals(num: int) -> str:
     num %= 1000
 
     c_count = num // 100
-    if c_count == 9:
-        numerals += "CM"
-        c_count -= 9
-    elif c_count == 4:
-        numerals += "CD"
-        c_count -= 4
+    match c_count:
+        case 9:
+            numerals += "CM"
+            c_count -= 9
+        case 4:
+            numerals += "CD"
+            c_count -= 4
     if c_count >= 5:
         numerals += "D"
         c_count -= 5
@@ -89,24 +90,26 @@ def generate_roman_numerals(num: int) -> str:
     num %= 100
 
     x_count = num // 10
-    if x_count == 9:
-        numerals += "XC"
-        x_count -= 9
-    elif x_count == 4:
-        numerals += "XL"
-        x_count -= 4
+    match x_count:
+        case 9:
+            numerals += "XC"
+            x_count -= 9
+        case 4:
+            numerals += "XL"
+            x_count -= 4
     if x_count >= 5:
         numerals += "L"
         x_count -= 5
     numerals += x_count * "X"
     num %= 10
 
-    if num == 9:
-        numerals += "IX"
-        num -= 9
-    elif num == 4:
-        numerals += "IV"
-        num -= 4
+    match num:
+        case 9:
+            numerals += "IX"
+            num -= 9
+        case 4:
+            numerals += "IV"
+            num -= 4
     if num >= 5:
         numerals += "V"
         num -= 5
@@ -125,8 +128,9 @@ def solution(roman_numerals_filename: str = "/p089_roman.txt") -> int:
 
     savings = 0
 
-    file1 = open(os.path.dirname(__file__) + roman_numerals_filename, "r")
-    lines = file1.readlines()
+    with open(os.path.dirname(__file__) + roman_numerals_filename) as file1:
+        lines = file1.readlines()
+
     for line in lines:
         original = line.strip()
         num = parse_roman_numerals(original)
@@ -137,5 +141,4 @@ def solution(roman_numerals_filename: str = "/p089_roman.txt") -> int:
 
 
 if __name__ == "__main__":
-
     print(f"{solution() = }")

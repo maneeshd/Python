@@ -13,8 +13,61 @@ python3 merge_insertion_sort.py
 
 from __future__ import annotations
 
+from typing import Any, Protocol
 
-def merge_insertion_sort(collection: list[int]) -> list[int]:
+
+class Comparable(Protocol):
+    def __lt__(self, other: Any, /) -> bool: ...
+
+
+def binary_search_insertion[T: Comparable](sorted_list: list[T], item: T) -> list[T]:
+    """
+    >>> binary_search_insertion([1, 2, 7, 9, 10], 4)
+    [1, 2, 4, 7, 9, 10]
+    """
+    left = 0
+    right = len(sorted_list) - 1
+    while left <= right:
+        middle = (left + right) // 2
+        if left == right:
+            if sorted_list[middle] < item:
+                left = middle + 1
+            break
+        if sorted_list[middle] < item:
+            left = middle + 1
+        else:
+            right = middle - 1
+    sorted_list.insert(left, item)
+    return sorted_list
+
+
+def merge[T: Comparable](left: list[list[T]], right: list[list[T]]) -> list[list[T]]:
+    """
+    >>> merge([[1, 6], [9, 10]], [[2, 3], [4, 5], [7, 8]])
+    [[1, 6], [2, 3], [4, 5], [7, 8], [9, 10]]
+    """
+    result = []
+    while left and right:
+        if left[0][0] < right[0][0]:
+            result.append(left.pop(0))
+        else:
+            result.append(right.pop(0))
+    return result + left + right
+
+
+def sortlist_2d[T: Comparable](list_2d: list[list[T]]) -> list[list[T]]:
+    """
+    >>> sortlist_2d([[9, 10], [1, 6], [7, 8], [2, 3], [4, 5]])
+    [[1, 6], [2, 3], [4, 5], [7, 8], [9, 10]]
+    """
+    length = len(list_2d)
+    if length <= 1:
+        return list_2d
+    middle = length // 2
+    return merge(sortlist_2d(list_2d[:middle]), sortlist_2d(list_2d[middle:]))
+
+
+def merge_insertion_sort[T: Comparable](collection: list[T]) -> list[T]:
     """Pure implementation of merge-insertion sort algorithm in Python
 
     :param collection: some mutable ordered collection with heterogeneous
@@ -30,39 +83,13 @@ def merge_insertion_sort(collection: list[int]) -> list[int]:
 
     >>> merge_insertion_sort([-2, -5, -45])
     [-45, -5, -2]
+
+    Testing with all permutations on range(0,5):
+    >>> import itertools
+    >>> permutations = list(itertools.permutations([0, 1, 2, 3, 4]))
+    >>> all(merge_insertion_sort(p) == [0, 1, 2, 3, 4] for p in permutations)
+    True
     """
-
-    def binary_search_insertion(sorted_list, item):
-        left = 0
-        right = len(sorted_list) - 1
-        while left <= right:
-            middle = (left + right) // 2
-            if left == right:
-                if sorted_list[middle] < item:
-                    left = middle + 1
-                break
-            elif sorted_list[middle] < item:
-                left = middle + 1
-            else:
-                right = middle - 1
-        sorted_list.insert(left, item)
-        return sorted_list
-
-    def sortlist_2d(list_2d):
-        def merge(left, right):
-            result = []
-            while left and right:
-                if left[0][0] < right[0][0]:
-                    result.append(left.pop(0))
-                else:
-                    result.append(right.pop(0))
-            return result + left + right
-
-        length = len(list_2d)
-        if length <= 1:
-            return list_2d
-        middle = length // 2
-        return merge(sortlist_2d(list_2d[:middle]), sortlist_2d(list_2d[middle:]))
 
     if len(collection) <= 1:
         return collection
@@ -160,7 +187,7 @@ def merge_insertion_sort(collection: list[int]) -> list[int]:
     """
     is_last_odd_item_inserted_before_this_index = False
     for i in range(len(sorted_list_2d) - 1):
-        if result[i] == collection[-i]:
+        if result[i] == collection[-1] and has_last_odd_item:
             is_last_odd_item_inserted_before_this_index = True
         pivot = sorted_list_2d[i][1]
         # If last_odd_item is inserted before the item's index,

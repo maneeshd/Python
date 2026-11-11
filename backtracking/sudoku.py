@@ -1,7 +1,7 @@
 """
-Given a partially filled 9×9 2D array, the objective is to fill a 9×9
+Given a partially filled 9x9 2D array, the objective is to fill a 9x9
 square grid with digits numbered 1 to 9, so that every row, column, and
-and each of the nine 3×3 sub-grids contains all of the digits.
+and each of the nine 3x3 sub-grids contains all of the digits.
 
 This can be solved using Backtracking and is similar to n-queens.
 We check to see if a cell is safe or not and recursively call the
@@ -9,9 +9,10 @@ function on the next column to see if it returns True. if yes, we
 have solved the puzzle. else, we backtrack and place another number
 in that cell and repeat this process.
 """
-from typing import List, Optional, Tuple
 
-Matrix = List[List[int]]
+from __future__ import annotations
+
+Matrix = list[list[int]]
 
 # assigning initial values to the grid
 initial_grid: Matrix = [
@@ -48,7 +49,7 @@ def is_safe(grid: Matrix, row: int, column: int, n: int) -> bool:
     is found) else returns True if it is 'safe'
     """
     for i in range(9):
-        if grid[row][i] == n or grid[i][column] == n:
+        if n in {grid[row][i], grid[i][column]}:
             return False
 
     for i in range(3):
@@ -59,28 +60,7 @@ def is_safe(grid: Matrix, row: int, column: int, n: int) -> bool:
     return True
 
 
-def is_completed(grid: Matrix) -> bool:
-    """
-    This function checks if the puzzle is completed or not.
-    it is completed when all the cells are assigned with a non-zero number.
-
-    >>> is_completed([[0]])
-    False
-    >>> is_completed([[1]])
-    True
-    >>> is_completed([[1, 2], [0, 4]])
-    False
-    >>> is_completed([[1, 2], [3, 4]])
-    True
-    >>> is_completed(initial_grid)
-    False
-    >>> is_completed(no_solution)
-    False
-    """
-    return all(all(cell != 0 for cell in row) for row in grid)
-
-
-def find_empty_location(grid: Matrix) -> Optional[Tuple[int, int]]:
+def find_empty_location(grid: Matrix) -> tuple[int, int] | None:
     """
     This function finds an empty location so that we can assign a number
     for that particular row and column.
@@ -92,7 +72,7 @@ def find_empty_location(grid: Matrix) -> Optional[Tuple[int, int]]:
     return None
 
 
-def sudoku(grid: Matrix) -> Optional[Matrix]:
+def sudoku(grid: Matrix) -> Matrix | None:
     """
     Takes a partially filled-in grid and attempts to assign values to
     all unassigned locations in such a way to meet the requirements
@@ -111,12 +91,7 @@ def sudoku(grid: Matrix) -> Optional[Matrix]:
      >>> sudoku(no_solution) is None
      True
     """
-
-    if is_completed(grid):
-        return grid
-
-    location = find_empty_location(grid)
-    if location is not None:
+    if location := find_empty_location(grid):
         row, column = location
     else:
         # If the location is ``None``, then the grid is solved.

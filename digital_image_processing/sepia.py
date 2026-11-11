@@ -1,6 +1,7 @@
 """
-    Implemented an algorithm using opencv to tone an image with sepia technique
+Implemented an algorithm using opencv to tone an image with sepia technique
 """
+
 from cv2 import destroyAllWindows, imread, imshow, waitKey
 
 
@@ -19,7 +20,7 @@ def make_sepia(img, factor: int):
         return 0.2126 * red + 0.587 * green + 0.114 * blue
 
     def normalize(value):
-        """ Helper function to normalize R/G/B value -> return 255 if value > 255"""
+        """Helper function to normalize R/G/B value -> return 255 if value > 255"""
         return min(value, 255)
 
     for i in range(pixel_h):

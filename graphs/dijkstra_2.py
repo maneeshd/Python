@@ -1,41 +1,109 @@
-def printDist(dist, V):
-    print("\nVertex Distance")
-    for i in range(V):
+def print_dist(dist, v) -> None:
+    """
+    Print vertex distances.
+    >>> print_dist([0.0, 5.0, 8.0, 9.0], 4)
+    Vertex Distance
+    0    0
+    1    5
+    2    8
+    3    9
+    >>> print_dist([0.0, float('inf')], 2)
+    Vertex Distance
+    0    0
+    1    INF
+    >>> print_dist([0.0], 1)
+    Vertex Distance
+    0    0
+    """
+    print("Vertex Distance")
+    for i in range(v):
         if dist[i] != float("inf"):
-            print(i, "\t", int(dist[i]), end="\t")
+            print(i, "  ", int(dist[i]))
         else:
-            print(i, "\t", "INF", end="\t")
-        print()
+            print(i, "  ", "INF")
 
 
-def minDist(mdist, vset, V):
-    minVal = float("inf")
-    minInd = -1
-    for i in range(V):
-        if (not vset[i]) and mdist[i] < minVal:
-            minInd = i
-            minVal = mdist[i]
-    return minInd
+def min_dist(mdist, vset, v):
+    """
+    Returns the vertex with the minimum distance from the source vertex
+    that has not yet been visited.
+
+    >>> min_dist([0, 4, 2, float('inf')], [True, False, False, False], 4)
+    2
+    >>> min_dist([0, 4, 2, 1], [True, False, True, False], 4)
+    3
+    >>> min_dist([0, 4, 2, 1], [True, True, True, True], 4)
+    -1
+    >>> min_dist([float('inf'), float('inf')], [False, False], 2)
+    -1
+    >>> min_dist([0, 1, 6], [True, False, False], 3)
+    1
+    """
+    min_val = float("inf")
+    min_ind = -1
+    for i in range(v):
+        if (not vset[i]) and mdist[i] < min_val:
+            min_ind = i
+            min_val = mdist[i]
+    return min_ind
 
 
-def Dijkstra(graph, V, src):
-    mdist = [float("inf") for i in range(V)]
-    vset = [False for i in range(V)]
+def dijkstra(graph, v, src) -> None:
+    """
+    Runs Dijkstra's algorithm and prints distances.
+
+    Calculate the shortest path from source to all other vertices
+    using Dijkstra's algorithm.
+
+    >>> g = [
+    ...     [0.0, 5.0, float('inf'), 10.0],
+    ...     [float('inf'), 0.0, 3.0, float('inf')],
+    ...     [float('inf'), float('inf'), 0.0, 1.0],
+    ...     [float('inf'), float('inf'), float('inf'), 0.0],
+    ... ]
+    >>> dijkstra(g, 4, 0)
+    Vertex Distance
+    0    0
+    1    5
+    2    8
+    3    9
+    >>> g2 = [
+    ...     [0.0, float('inf')],
+    ...     [float('inf'), 0.0],
+    ... ]
+    >>> dijkstra(g2, 2, 0)
+    Vertex Distance
+    0    0
+    1    INF
+    >>> dijkstra([[0.0]], 1, 0)
+    Vertex Distance
+    0    0
+    >>> graph = [[0.0, 1.0, 6.0],\
+                [float("inf"), 0.0, 3.0],\
+                [float("inf"), float("inf"), 0.0]]
+    >>> dijkstra(graph, 3, 0) # doctest: +NORMALIZE_WHITESPACE
+    Vertex Distance
+    0    0
+    1    1
+    2    4
+    """
+    mdist = [float("inf") for _ in range(v)]
+    vset = [False for _ in range(v)]
     mdist[src] = 0.0
 
-    for i in range(V - 1):
-        u = minDist(mdist, vset, V)
+    for _ in range(v - 1):
+        u = min_dist(mdist, vset, v)
         vset[u] = True
 
-        for v in range(V):
+        for i in range(v):
             if (
-                (not vset[v])
-                and graph[u][v] != float("inf")
-                and mdist[u] + graph[u][v] < mdist[v]
+                (not vset[i])
+                and graph[u][i] != float("inf")
+                and mdist[u] + graph[u][i] < mdist[i]
             ):
-                mdist[v] = mdist[u] + graph[u][v]
+                mdist[i] = mdist[u] + graph[u][i]
 
-    printDist(mdist, V)
+    print_dist(mdist, v)
 
 
 if __name__ == "__main__":
@@ -55,4 +123,4 @@ if __name__ == "__main__":
         graph[src][dst] = weight
 
     gsrc = int(input("\nEnter shortest path source:").strip())
-    Dijkstra(graph, V, gsrc)
+    dijkstra(graph, V, gsrc)

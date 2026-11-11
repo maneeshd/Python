@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
+
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "httpx2",
+#     "pytest",
+# ]
+# ///
+
+import hashlib
 import importlib.util
 import json
 import os
 import pathlib
 from types import ModuleType
-from typing import Dict, List
 
+import httpx2
 import pytest
-import requests
 
 PROJECT_EULER_DIR_PATH = pathlib.Path.cwd().joinpath("project_euler")
 PROJECT_EULER_ANSWERS_PATH = pathlib.Path.cwd().joinpath(
@@ -15,18 +24,18 @@ PROJECT_EULER_ANSWERS_PATH = pathlib.Path.cwd().joinpath(
 )
 
 with open(PROJECT_EULER_ANSWERS_PATH) as file_handle:
-    PROBLEM_ANSWERS: Dict[str, str] = json.load(file_handle)
+    PROBLEM_ANSWERS: dict[str, str] = json.load(file_handle)
 
 
 def convert_path_to_module(file_path: pathlib.Path) -> ModuleType:
     """Converts a file path to a Python module"""
     spec = importlib.util.spec_from_file_location(file_path.name, str(file_path))
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)  # type: ignore
+    module = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
     return module
 
 
-def all_solution_file_paths() -> List[pathlib.Path]:
+def all_solution_file_paths() -> list[pathlib.Path]:
     """Collects all the solution file path in the Project Euler directory"""
     solution_file_paths = []
     for problem_dir_path in PROJECT_EULER_DIR_PATH.iterdir():
@@ -46,7 +55,7 @@ def get_files_url() -> str:
     return event["pull_request"]["url"] + "/files"
 
 
-def added_solution_file_path() -> List[pathlib.Path]:
+def added_solution_file_path() -> list[pathlib.Path]:
     """Collects only the solution file path which got added in the current
     pull request.
 
@@ -57,7 +66,7 @@ def added_solution_file_path() -> List[pathlib.Path]:
         "Accept": "application/vnd.github.v3+json",
         "Authorization": "token " + os.environ["GITHUB_TOKEN"],
     }
-    files = requests.get(get_files_url(), headers=headers).json()
+    files = httpx2.get(get_files_url(), headers=headers, timeout=10).json()
     for file in files:
         filepath = pathlib.Path.cwd().joinpath(file["filename"])
         if (
@@ -70,11 +79,14 @@ def added_solution_file_path() -> List[pathlib.Path]:
     return solution_file_paths
 
 
-def collect_solution_file_paths() -> List[pathlib.Path]:
-    if os.environ.get("CI") and os.environ.get("GITHUB_EVENT_NAME") == "pull_request":
-        # Return only if there are any, otherwise default to all solutions
-        if filepaths := added_solution_file_path():
-            return filepaths
+def collect_solution_file_paths() -> list[pathlib.Path]:
+    # Return only if there are any, otherwise default to all solutions
+    if (
+        os.environ.get("CI")
+        and os.environ.get("GITHUB_EVENT_NAME") == "pull_request"
+        and (filepaths := added_solution_file_path())
+    ):
+        return filepaths
     return all_solution_file_paths()
 
 
@@ -89,5 +101,8 @@ def test_project_euler(solution_path: pathlib.Path) -> None:
     problem_number: str = solution_path.parent.name[8:].zfill(3)
     expected: str = PROBLEM_ANSWERS[problem_number]
     solution_module = convert_path_to_module(solution_path)
-    answer = str(solution_module.solution())  # type: ignore
-    assert answer == expected, f"Expected {expected} but got {answer}"
+    answer = str(solution_module.solution())
+    answer = hashlib.sha256(answer.encode()).hexdigest()
+    assert answer == expected, (
+        f"Expected solution to {problem_number} to have hash {expected}, got {answer}"
+    )

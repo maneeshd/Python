@@ -1,26 +1,25 @@
 # Random Forest Classifier Example
+
 from matplotlib import pyplot as plt
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import plot_confusion_matrix
+from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.model_selection import train_test_split
 
 
-def main():
-
+def main() -> None:
     """
     Random Forest Classifier Example using sklearn function.
     Iris type dataset is used to demonstrate algorithm.
     """
-
     # Load Iris dataset
     iris = load_iris()
 
     # Split dataset into train and test data
-    X = iris["data"]  # features
-    Y = iris["target"]
+    x = iris["data"]  # features
+    y = iris["target"]
     x_train, x_test, y_train, y_test = train_test_split(
-        X, Y, test_size=0.3, random_state=1
+        x, y, test_size=0.3, random_state=1
     )
 
     # Random Forest Classifier
@@ -28,7 +27,7 @@ def main():
     rand_for.fit(x_train, y_train)
 
     # Display Confusion Matrix of Classifier
-    plot_confusion_matrix(
+    ConfusionMatrixDisplay.from_estimator(
         rand_for,
         x_test,
         y_test,

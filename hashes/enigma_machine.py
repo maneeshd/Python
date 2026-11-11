@@ -1,13 +1,20 @@
+"""
+
+Note:
+    This algorithm has memory persistence.
+    So multiple runs on the same runtime will carry junk and scramble the result!
+"""
+
 alphabets = [chr(i) for i in range(32, 126)]
-gear_one = [i for i in range(len(alphabets))]
-gear_two = [i for i in range(len(alphabets))]
-gear_three = [i for i in range(len(alphabets))]
-reflector = [i for i in reversed(range(len(alphabets)))]
+gear_one = list(range(len(alphabets)))
+gear_two = list(range(len(alphabets)))
+gear_three = list(range(len(alphabets)))
+reflector = list(reversed(range(len(alphabets))))
 code = []
 gear_one_pos = gear_two_pos = gear_three_pos = 0
 
 
-def rotator():
+def rotator() -> None:
     global gear_one_pos
     global gear_two_pos
     global gear_three_pos
@@ -15,19 +22,19 @@ def rotator():
     gear_one.append(i)
     del gear_one[0]
     gear_one_pos += 1
-    if gear_one_pos % int(len(alphabets)) == 0:
+    if gear_one_pos % len(alphabets) == 0:
         i = gear_two[0]
         gear_two.append(i)
         del gear_two[0]
         gear_two_pos += 1
-        if gear_two_pos % int(len(alphabets)) == 0:
+        if gear_two_pos % len(alphabets) == 0:
             i = gear_three[0]
             gear_three.append(i)
             del gear_three[0]
             gear_three_pos += 1
 
 
-def engine(input_character):
+def engine(input_character) -> None:
     target = alphabets.index(input_character)
     target = gear_one[target]
     target = gear_two[target]
@@ -40,7 +47,22 @@ def engine(input_character):
     rotator()
 
 
-if __name__ == "__main__":
+def encode_or_decode(message, token):
+    """
+
+    >>> encode_or_decode("hello", 3)
+    (['/', '0', "'", '%', ' '], 3)
+
+    """
+
+    for _ in range(token):
+        rotator()
+    for j in message:
+        engine(j)
+    return code, token
+
+
+def menu():
     decode = list(input("Type your message:\n"))
     while True:
         try:
@@ -48,12 +70,18 @@ if __name__ == "__main__":
             break
         except Exception as error:
             print(error)
-    for i in range(token):
+    for _ in range(token):
         rotator()
     for j in decode:
         engine(j)
     print("\n" + "".join(code))
     print(
         f"\nYour Token is {token} please write it down.\nIf you want to decode "
-        f"this message again you should input same digits as token!"
+        "this message again you should input same digits as token!"
     )
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod()

@@ -13,13 +13,30 @@ For manual testing run:
 python3 insertion_sort.py
 """
 
+from collections.abc import MutableSequence
+from typing import Any, Protocol
 
-def insertion_sort(collection: list) -> list:
+
+class Comparable(Protocol):
+    def __lt__(self, other: Any, /) -> bool: ...
+
+
+def insertion_sort[T: Comparable](collection: MutableSequence[T]) -> MutableSequence[T]:
     """A pure Python implementation of the insertion sort algorithm
 
     :param collection: some mutable ordered collection with heterogeneous
     comparable items inside
     :return: the same collection ordered by ascending
+
+    Complexity Analysis:
+        Time Complexity:
+            - Best Case: O(n) when the collection is already sorted
+            - Average Case: O(n^2)
+            - Worst Case: O(n^2) when the collection is sorted in reverse order
+
+        Space Complexity:
+            - O(1) because the algorithm sorts the collection in place and
+              uses only a constant amount of additional memory
 
     Examples:
     >>> insertion_sort([0, 5, 3, 2, 2])
@@ -30,6 +47,28 @@ def insertion_sort(collection: list) -> list:
     True
     >>> insertion_sort(['d', 'a', 'b', 'e', 'c']) == sorted(['d', 'a', 'b', 'e', 'c'])
     True
+    >>> values = [4, 2, 7, 1]
+    >>> result = insertion_sort(values)
+    >>> result is values
+    True
+    >>> values
+    [1, 2, 4, 7]
+
+    Equal-priority items retain their original relative order:
+    >>> from dataclasses import dataclass, field
+    >>> @dataclass(order=True)
+    ... class Item:
+    ...     priority: int
+    ...     label: str = field(compare=False)
+    >>> items = [Item(2, "A"), Item(1, "X"), Item(2, "B"), Item(1, "Y")]
+    >>> insertion_sort(items)  # doctest: +NORMALIZE_WHITESPACE
+    [Item(priority=1, label='X'), Item(priority=1, label='Y'),
+     Item(priority=2, label='A'), Item(priority=2, label='B')]
+    >>> other = [Item(2, "B"), Item(1, "Y"), Item(2, "A"), Item(1, "X")]
+    >>> insertion_sort(other)  # doctest: +NORMALIZE_WHITESPACE
+    [Item(priority=1, label='Y'), Item(priority=1, label='X'),
+     Item(priority=2, label='B'), Item(priority=2, label='A')]
+
     >>> import random
     >>> collection = random.sample(range(-50, 50), 100)
     >>> insertion_sort(collection) == sorted(collection)
@@ -40,13 +79,12 @@ def insertion_sort(collection: list) -> list:
     True
     """
 
-    for insert_index, insert_value in enumerate(collection[1:]):
-        temp_index = insert_index
-        while insert_index >= 0 and insert_value < collection[insert_index]:
-            collection[insert_index + 1] = collection[insert_index]
+    for insert_index in range(1, len(collection)):
+        insert_value = collection[insert_index]
+        while insert_index > 0 and insert_value < collection[insert_index - 1]:
+            collection[insert_index] = collection[insert_index - 1]
             insert_index -= 1
-        if insert_index != temp_index:
-            collection[insert_index + 1] = insert_value
+        collection[insert_index] = insert_value
     return collection
 
 

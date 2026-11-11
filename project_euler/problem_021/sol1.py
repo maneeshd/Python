@@ -13,6 +13,7 @@ and 110; therefore d(220) = 284. The proper divisors of 284 are 1, 2, 4, 71 and
 
 Evaluate the sum of all the amicable numbers under 10000.
 """
+
 from math import sqrt
 
 
@@ -41,11 +42,9 @@ def solution(n: int = 10000) -> int:
     0
     """
     total = sum(
-        [
-            i
-            for i in range(1, n)
-            if sum_of_divisors(sum_of_divisors(i)) == i and sum_of_divisors(i) != i
-        ]
+        i
+        for i in range(1, n)
+        if sum_of_divisors(sum_of_divisors(i)) == i and sum_of_divisors(i) != i
     )
     return total
 

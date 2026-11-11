@@ -5,15 +5,16 @@ https://epaperpress.com/sortsearch/download/skiplist.pdf
 
 from __future__ import annotations
 
+from itertools import pairwise
 from random import random
-from typing import Generic, Optional, TypeVar
+from typing import TypeVar
 
 KT = TypeVar("KT")
 VT = TypeVar("VT")
 
 
-class Node(Generic[KT, VT]):
-    def __init__(self, key: KT, value: VT):
+class Node[KT, VT]:
+    def __init__(self, key: KT | str = "root", value: VT | None = None) -> None:
         self.key = key
         self.value = value
         self.forward: list[Node[KT, VT]] = []
@@ -48,9 +49,9 @@ class Node(Generic[KT, VT]):
         return len(self.forward)
 
 
-class SkipList(Generic[KT, VT]):
-    def __init__(self, p: float = 0.5, max_level: int = 16):
-        self.head = Node("root", None)
+class SkipList[KT, VT]:
+    def __init__(self, p: float = 0.5, max_level: int = 16) -> None:
+        self.head: Node[KT, VT] = Node[KT, VT]()
         self.level = 0
         self.p = p
         self.max_level = max_level
@@ -124,7 +125,7 @@ class SkipList(Generic[KT, VT]):
 
         return level
 
-    def _locate_node(self, key) -> tuple[Optional[Node[KT, VT]], list[Node[KT, VT]]]:
+    def _locate_node(self, key) -> tuple[Node[KT, VT] | None, list[Node[KT, VT]]]:
         """
         :param key: Searched key,
         :return: Tuple with searched node (or None if given key is not present)
@@ -159,7 +160,7 @@ class SkipList(Generic[KT, VT]):
         else:
             return None, update_vector
 
-    def delete(self, key: KT):
+    def delete(self, key: KT) -> None:
         """
         :param key: Key to remove from list.
 
@@ -185,7 +186,7 @@ class SkipList(Generic[KT, VT]):
                     else:
                         update_node.forward = update_node.forward[:i]
 
-    def insert(self, key: KT, value: VT):
+    def insert(self, key: KT, value: VT) -> None:
         """
         :param key: Key to insert.
         :param value: Value associated with given key.
@@ -206,7 +207,7 @@ class SkipList(Generic[KT, VT]):
 
             if level > self.level:
                 # After level increase we have to add additional nodes to head.
-                for i in range(self.level - 1, level):
+                for _ in range(self.level - 1, level):
                     update_vector.append(self.head)
                 self.level = level
 
@@ -222,7 +223,7 @@ class SkipList(Generic[KT, VT]):
                 else:
                     update_node.forward[i] = new_node
 
-    def find(self, key: VT) -> Optional[VT]:
+    def find(self, key: VT) -> VT | None:
         """
         :param key: Search key.
         :return: Value associated with given key or None if given key is not present.
@@ -245,7 +246,7 @@ class SkipList(Generic[KT, VT]):
         return None
 
 
-def test_insert():
+def test_insert() -> None:
     skip_list = SkipList()
     skip_list.insert("Key1", 3)
     skip_list.insert("Key2", 12)
@@ -265,7 +266,7 @@ def test_insert():
     assert all_values["Key4"] == -19
 
 
-def test_insert_overrides_existing_value():
+def test_insert_overrides_existing_value() -> None:
     skip_list = SkipList()
     skip_list.insert("Key1", 10)
     skip_list.insert("Key1", 12)
@@ -293,12 +294,12 @@ def test_insert_overrides_existing_value():
     assert all_values["Key10"] == 10
 
 
-def test_searching_empty_list_returns_none():
+def test_searching_empty_list_returns_none() -> None:
     skip_list = SkipList()
     assert skip_list.find("Some key") is None
 
 
-def test_search():
+def test_search() -> None:
     skip_list = SkipList()
 
     skip_list.insert("Key2", 20)
@@ -314,14 +315,14 @@ def test_search():
     assert skip_list.find("V") == 13
 
 
-def test_deleting_item_from_empty_list_do_nothing():
+def test_deleting_item_from_empty_list_do_nothing() -> None:
     skip_list = SkipList()
     skip_list.delete("Some key")
 
     assert len(skip_list.head.forward) == 0
 
 
-def test_deleted_items_are_not_founded_by_find_method():
+def test_deleted_items_are_not_founded_by_find_method() -> None:
     skip_list = SkipList()
 
     skip_list.insert("Key1", 12)
@@ -336,7 +337,7 @@ def test_deleted_items_are_not_founded_by_find_method():
     assert skip_list.find("Key2") is None
 
 
-def test_delete_removes_only_given_key():
+def test_delete_removes_only_given_key() -> None:
     skip_list = SkipList()
 
     skip_list.insert("Key1", 12)
@@ -369,7 +370,7 @@ def test_delete_removes_only_given_key():
     assert skip_list.find("Key2") is None
 
 
-def test_delete_doesnt_leave_dead_nodes():
+def test_delete_doesnt_leave_dead_nodes() -> None:
     skip_list = SkipList()
 
     skip_list.insert("Key1", 12)
@@ -387,12 +388,9 @@ def test_delete_doesnt_leave_dead_nodes():
     assert len(set(traverse_keys(skip_list.head))) == 4
 
 
-def test_iter_always_yields_sorted_values():
+def test_iter_always_yields_sorted_values() -> None:
     def is_sorted(lst):
-        for item, next_item in zip(lst, lst[1:]):
-            if next_item < item:
-                return False
-        return True
+        return all(next_item >= item for item, next_item in pairwise(lst))
 
     skip_list = SkipList()
     for i in range(10):
@@ -407,8 +405,8 @@ def test_iter_always_yields_sorted_values():
     assert is_sorted(list(skip_list))
 
 
-def pytests():
-    for i in range(100):
+def pytests() -> None:
+    for _ in range(100):
         # Repeat test 100 times due to the probabilistic nature of skip list
         # random values == random bugs
         test_insert()
@@ -425,7 +423,7 @@ def pytests():
         test_iter_always_yields_sorted_values()
 
 
-def main():
+def main() -> None:
     """
     >>> pytests()
     """
@@ -444,4 +442,7 @@ def main():
 
 
 if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod()
     main()

@@ -3,6 +3,7 @@ Given an array of integers and another integer target,
 we are required to find a triplet from the array such that it's sum is equal to
 the target.
 """
+
 from __future__ import annotations
 
 from itertools import permutations
@@ -19,7 +20,7 @@ def make_dataset() -> tuple[list[int], int]:
 dataset = make_dataset()
 
 
-def triplet_sum1(arr: list[int], target: int) -> tuple[int, int, int]:
+def triplet_sum1(arr: list[int], target: int) -> tuple[int, ...]:
     """
     Returns a triplet in the array with sum equal to target,
     else (0, 0, 0).

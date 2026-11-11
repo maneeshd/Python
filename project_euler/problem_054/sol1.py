@@ -40,6 +40,7 @@ Similar problem on codewars:
 https://www.codewars.com/kata/ranking-poker-hands
 https://www.codewars.com/kata/sortable-poker-hands
 """
+
 from __future__ import annotations
 
 import os
@@ -47,18 +48,18 @@ import os
 
 class PokerHand:
     """Create an object representing a Poker Hand based on an input of a
-    string which represents the best 5 card combination from the player's hand
+    string which represents the best 5-card combination from the player's hand
     and board cards.
 
     Attributes: (read-only)
-        hand: string representing the hand consisting of five cards
+        hand: a string representing the hand consisting of five cards
 
     Methods:
         compare_with(opponent): takes in player's hand (self) and
             opponent's hand (opponent) and compares both hands according to
             the rules of Texas Hold'em.
             Returns one of 3 strings (Win, Loss, Tie) based on whether
-            player's hand is better than opponent's hand.
+            player's hand is better than the opponent's hand.
 
         hand_name(): Returns a string made up of two parts: hand name
             and high card.
@@ -66,11 +67,11 @@ class PokerHand:
     Supported operators:
         Rich comparison operators: <, >, <=, >=, ==, !=
 
-    Supported builtin methods and functions:
+    Supported built-in methods and functions:
         list.sort(), sorted()
     """
 
-    _HAND_NAME = [
+    _HAND_NAME = (
         "High card",
         "One pair",
         "Two pairs",
@@ -81,10 +82,10 @@ class PokerHand:
         "Four of a kind",
         "Straight flush",
         "Royal flush",
-    ]
+    )
 
-    _CARD_NAME = [
-        "",  # placeholder as lists are zero indexed
+    _CARD_NAME = (
+        "",  # placeholder as tuples are zero-indexed
         "One",
         "Two",
         "Three",
@@ -99,7 +100,7 @@ class PokerHand:
         "Queen",
         "King",
         "Ace",
-    ]
+    )
 
     def __init__(self, hand: str) -> None:
         """
@@ -119,10 +120,12 @@ class PokerHand:
         For example: "6S 4C KC AS TH"
         """
         if not isinstance(hand, str):
-            raise TypeError(f"Hand should be of type 'str': {hand!r}")
+            msg = f"Hand should be of type 'str': {hand!r}"
+            raise TypeError(msg)
         # split removes duplicate whitespaces so no need of strip
         if len(hand.split(" ")) != 5:
-            raise ValueError(f"Hand should contain only 5 cards: {hand!r}")
+            msg = f"Hand should contain only 5 cards: {hand!r}"
+            raise ValueError(msg)
         self._hand = hand
         self._first_pair = 0
         self._second_pair = 0
@@ -135,7 +138,7 @@ class PokerHand:
         """Returns the self hand"""
         return self._hand
 
-    def compare_with(self, other: "PokerHand") -> str:
+    def compare_with(self, other: PokerHand) -> str:
         """
         Determines the outcome of comparing self hand with other hand.
         Returns the output as 'Win', 'Loss', 'Tie' according to the rules of
@@ -208,19 +211,20 @@ class PokerHand:
         high = PokerHand._CARD_NAME[self._high_card]
         pair1 = PokerHand._CARD_NAME[self._first_pair]
         pair2 = PokerHand._CARD_NAME[self._second_pair]
-        if self._hand_type in [22, 19, 18]:
-            return name + f", {high}-high"
-        elif self._hand_type in [21, 17, 15]:
-            return name + f", {pair1}s"
-        elif self._hand_type in [20, 16]:
-            join = "over" if self._hand_type == 20 else "and"
-            return name + f", {pair1}s {join} {pair2}s"
-        elif self._hand_type == 23:
-            return name
-        else:
-            return name + f", {high}"
+        match self._hand_type:
+            case 22 | 19 | 18:
+                return name + f", {high}-high"
+            case 21 | 17 | 15:
+                return name + f", {pair1}s"
+            case 20 | 16:
+                join = "over" if self._hand_type == 20 else "and"
+                return name + f", {pair1}s {join} {pair2}s"
+            case 23:
+                return name
+            case _:
+                return name + f", {high}"
 
-    def _compare_cards(self, other: "PokerHand") -> str:
+    def _compare_cards(self, other: PokerHand) -> str:
         # Enumerate gives us the index as well as the element of a list
         for index, card_value in enumerate(self._card_values):
             if card_value != other._card_values[index]:
@@ -321,42 +325,42 @@ class PokerHand:
         card_suit = {card[-1] for card in new_hand}
         return sorted(card_values, reverse=True), card_suit
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.__class__}("{self._hand}")'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._hand
 
     # Rich comparison operators (used in list.sort() and sorted() builtin functions)
     # Note that this is not part of the problem but another extra feature where
     # if you have a list of PokerHand objects, you can sort them just through
     # the builtin functions.
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, PokerHand):
             return self.compare_with(other) == "Tie"
         return NotImplemented
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         if isinstance(other, PokerHand):
             return self.compare_with(other) == "Loss"
         return NotImplemented
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         if isinstance(other, PokerHand):
             return self < other or self == other
         return NotImplemented
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         if isinstance(other, PokerHand):
             return not self < other and self != other
         return NotImplemented
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         if isinstance(other, PokerHand):
             return not self < other
         return NotImplemented
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return object.__hash__(self)
 
 

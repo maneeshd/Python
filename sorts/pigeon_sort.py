@@ -1,18 +1,19 @@
 """
-    This is an implementation of Pigeon Hole Sort.
-    For doctests run following command:
+This is an implementation of Pigeon Hole Sort.
+For doctests run following command:
 
-    python3 -m doctest -v pigeon_sort.py
-    or
-    python -m doctest -v pigeon_sort.py
+python3 -m doctest -v pigeon_sort.py
+or
+python -m doctest -v pigeon_sort.py
 
-    For manual testing run:
-    python pigeon_sort.py
+For manual testing run:
+python pigeon_sort.py
 """
-from typing import List
+
+from __future__ import annotations
 
 
-def pigeon_sort(array: List[int]) -> List[int]:
+def pigeon_sort(array: list[int]) -> list[int]:
     """
     Implementation of pigeon hole sort algorithm
     :param array: Collection of comparable items

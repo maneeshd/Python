@@ -47,7 +47,7 @@ def solution(n: int = 20) -> int:
 
     try:
         n = int(n)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         raise TypeError("Parameter n must be int or castable to int.")
     if n <= 0:
         raise ValueError("Parameter n must be greater than or equal to one.")
@@ -63,6 +63,7 @@ def solution(n: int = 20) -> int:
             if i == 0:
                 i = 1
             return i
+    return None
 
 
 if __name__ == "__main__":

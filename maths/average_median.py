@@ -1,10 +1,14 @@
-def median(nums):
+from __future__ import annotations
+
+
+def median(nums: list) -> int | float:
     """
     Find median of a list of numbers.
+    Wiki: https://en.wikipedia.org/wiki/Median
 
     >>> median([0])
     0
-    >>> median([4,1,3,2])
+    >>> median([4, 1, 3, 2])
     2.5
     >>> median([2, 70, 6, 50, 20, 8, 4])
     8
@@ -15,7 +19,9 @@ def median(nums):
     Returns:
         Median.
     """
-    sorted_list = sorted(nums)
+    # The sorted function returns list[SupportsRichComparisonT@sorted]
+    # which does not support `+`
+    sorted_list: list[int] = sorted(nums)
     length = len(sorted_list)
     mid_index = length >> 1
     return (
@@ -25,7 +31,7 @@ def median(nums):
     )
 
 
-def main():
+def main() -> None:
     import doctest
 
     doctest.testmod()

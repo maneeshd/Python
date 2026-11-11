@@ -27,7 +27,6 @@ How many chains, with a starting number below one million, contain exactly sixty
 non-repeating terms?
 """
 
-
 DIGIT_FACTORIALS = {
     "0": 1,
     "1": 1,
@@ -66,12 +65,12 @@ def sum_digit_factorials(n: int) -> int:
     """
     if n in CACHE_SUM_DIGIT_FACTORIALS:
         return CACHE_SUM_DIGIT_FACTORIALS[n]
-    ret = sum([DIGIT_FACTORIALS[let] for let in str(n)])
+    ret = sum(DIGIT_FACTORIALS[let] for let in str(n))
     CACHE_SUM_DIGIT_FACTORIALS[n] = ret
     return ret
 
 
-def chain_length(n: int, previous: set = None) -> int:
+def chain_length(n: int, previous: set | None = None) -> int:
     """
     Calculate the length of the chain of non-repeating terms starting with n.
     Previous is a set containing the previous member of the chain.

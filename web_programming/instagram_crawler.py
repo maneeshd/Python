@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
-from __future__ import annotations
+
+# /// script
+# requires-python = ">=3.15"
+# dependencies = [
+#     "beautifulsoup4",
+#     "fake-useragent",
+#     "httpx2",
+# ]
+# ///
 
 import json
 
-import requests
+import httpx2
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
@@ -31,7 +39,7 @@ class InstagramUser:
     'Built for developers.'
     """
 
-    def __init__(self, username):
+    def __init__(self, username) -> None:
         self.url = f"https://www.instagram.com/{username}/"
         self.user_data = self.get_json()
 
@@ -39,11 +47,11 @@ class InstagramUser:
         """
         Return a dict of user information
         """
-        html = requests.get(self.url, headers=headers).text
+        html = httpx2.get(self.url, headers=headers, timeout=10).text
         scripts = BeautifulSoup(html, "html.parser").find_all("script")
         try:
             return extract_user_profile(scripts[4])
-        except (json.decoder.JSONDecodeError, KeyError):
+        except json.decoder.JSONDecodeError, KeyError:
             return extract_user_profile(scripts[3])
 
     def __repr__(self) -> str:
@@ -105,7 +113,7 @@ def test_instagram_user(username: str = "github") -> None:
     import os
 
     if os.environ.get("CI"):
-        return None  # test failing on GitHub Actions
+        return  # test failing on GitHub Actions
     instagram_user = InstagramUser(username)
     assert instagram_user.user_data
     assert isinstance(instagram_user.user_data, dict)

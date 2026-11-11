@@ -3,10 +3,19 @@ Python program for Bitonic Sort.
 
 Note that this program works only when size of input is a power of 2.
 """
-from typing import List
+
+from __future__ import annotations
+
+from typing import Protocol
 
 
-def comp_and_swap(array: List[int], index1: int, index2: int, direction: int) -> None:
+class Comparable(Protocol):
+    def __lt__(self, other: object, /) -> bool: ...
+
+
+def comp_and_swap[T: Comparable](
+    array: list[T], index1: int, index2: int, direction: int
+) -> None:
     """Compare the value at given index1 and index2 of the array and swap them as per
     the given direction.
 
@@ -16,28 +25,30 @@ def comp_and_swap(array: List[int], index1: int, index2: int, direction: int) ->
 
     >>> arr = [12, 42, -21, 1]
     >>> comp_and_swap(arr, 1, 2, 1)
-    >>> print(arr)
+    >>> arr
     [12, -21, 42, 1]
 
     >>> comp_and_swap(arr, 1, 2, 0)
-    >>> print(arr)
+    >>> arr
     [12, 42, -21, 1]
 
     >>> comp_and_swap(arr, 0, 3, 1)
-    >>> print(arr)
+    >>> arr
     [1, 42, -21, 12]
 
     >>> comp_and_swap(arr, 0, 3, 0)
-    >>> print(arr)
+    >>> arr
     [12, 42, -21, 1]
     """
-    if (direction == 1 and array[index1] > array[index2]) or (
+    if (direction == 1 and array[index2] < array[index1]) or (
         direction == 0 and array[index1] < array[index2]
     ):
         array[index1], array[index2] = array[index2], array[index1]
 
 
-def bitonic_merge(array: List[int], low: int, length: int, direction: int) -> None:
+def bitonic_merge[T: Comparable](
+    array: list[T], low: int, length: int, direction: int
+) -> None:
     """
     It recursively sorts a bitonic sequence in ascending order, if direction = 1, and in
     descending if direction = 0.
@@ -46,11 +57,11 @@ def bitonic_merge(array: List[int], low: int, length: int, direction: int) -> No
 
     >>> arr = [12, 42, -21, 1]
     >>> bitonic_merge(arr, 0, 4, 1)
-    >>> print(arr)
+    >>> arr
     [-21, 1, 12, 42]
 
     >>> bitonic_merge(arr, 0, 4, 0)
-    >>> print(arr)
+    >>> arr
     [42, 12, 1, -21]
     """
     if length > 1:
@@ -61,7 +72,9 @@ def bitonic_merge(array: List[int], low: int, length: int, direction: int) -> No
         bitonic_merge(array, low + middle, middle, direction)
 
 
-def bitonic_sort(array: List[int], low: int, length: int, direction: int) -> None:
+def bitonic_sort[T: Comparable](
+    array: list[T], low: int, length: int, direction: int
+) -> None:
     """
     This function first produces a bitonic sequence by recursively sorting its two
     halves in opposite sorting orders, and then calls bitonic_merge to make them in the
@@ -75,6 +88,22 @@ def bitonic_sort(array: List[int], low: int, length: int, direction: int) -> Non
     >>> bitonic_sort(arr, 0, 8, 0)
     >>> arr
     [145, 92, 34, 12, 0, -23, -121, -167]
+
+    >>> arr = ["banana", "apple", "cherry", "date"]
+    >>> bitonic_sort(arr, 0, 4, 1)
+    >>> arr
+    ['apple', 'banana', 'cherry', 'date']
+
+    >>> arr = [3, 1.5, 2, 4.5]
+    >>> bitonic_sort(arr, 0, 4, 1)
+    >>> arr
+    [1.5, 2, 3, 4.5]
+
+    >>> arr = [1, "two", 3, "four"]
+    >>> bitonic_sort(arr, 0, 4, 1)
+    Traceback (most recent call last):
+    ...
+    TypeError: '<' not supported between instances of 'str' and 'int'
     """
     if length > 1:
         middle = int(length / 2)

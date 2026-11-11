@@ -12,16 +12,17 @@ Constraints
 Note: The tree input will be such that it can always be decomposed into
 components containing an even number of nodes.
 """
+
 # pylint: disable=invalid-name
 from collections import defaultdict
 
 
-def dfs(start):
+def dfs(start: int) -> int:
     """DFS traversal"""
     # pylint: disable=redefined-outer-name
     ret = 1
     visited[start] = True
-    for v in tree.get(start):
+    for v in tree[start]:
         if v not in visited:
             ret += dfs(v)
     if ret % 2 == 0:
@@ -29,7 +30,7 @@ def dfs(start):
     return ret
 
 
-def even_tree():
+def even_tree() -> None:
     """
     2 1
     3 1
@@ -48,8 +49,8 @@ def even_tree():
 if __name__ == "__main__":
     n, m = 10, 9
     tree = defaultdict(list)
-    visited = {}
-    cuts = []
+    visited: dict[int, bool] = {}
+    cuts: list[int] = []
     count = 0
     edges = [(2, 1), (3, 1), (4, 3), (5, 2), (6, 1), (7, 2), (8, 6), (9, 8), (10, 8)]
     for u, v in edges:

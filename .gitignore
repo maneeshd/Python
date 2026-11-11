@@ -73,7 +73,6 @@ target/
 .ipynb_checkpoints
 
 # pyenv
-.python-version
 
 # celery beat schedule file
 celerybeat-schedule
@@ -107,3 +106,4 @@ venv.bak/
 .idea
 .try
 .vscode/
+.vs/

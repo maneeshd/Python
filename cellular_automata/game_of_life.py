@@ -10,7 +10,7 @@ Python:
   - 3.5
 
 Usage:
-  - $python3 game_o_life <canvas_size:int>
+  - $python3 game_of_life <canvas_size:int>
 
 Game-Of-Life Rules:
 
@@ -26,7 +26,8 @@ Game-Of-Life Rules:
  4.
  Any dead cell with exactly three live neighbours be-
  comes a live cell, as if by reproduction.
- """
+"""
+
 import random
 import sys
 
@@ -34,49 +35,123 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap
 
-usage_doc = "Usage of script: script_nama <size_of_canvas:int>"
+usage_doc = "Usage of script: script_name <size_of_canvas:int>"
 
 choice = [0] * 100 + [1] * 10
 random.shuffle(choice)
 
 
-def create_canvas(size):
+def create_canvas(size: int) -> list[list[bool]]:
+    """
+    Create a square canvas of given size filled with False (dead cells).
+
+    Args:
+        size: The dimension of the square canvas
+
+    Returns:
+        A size x size 2D list of boolean values, all initialized to False
+
+    >>> canvas = create_canvas(3)
+    >>> len(canvas)
+    3
+    >>> len(canvas[0])
+    3
+    >>> all(all(not cell for cell in row) for row in canvas)
+    True
+    >>> create_canvas(1)
+    [[False]]
+    >>> create_canvas(0)
+    []
+    """
     canvas = [[False for i in range(size)] for j in range(size)]
     return canvas
 
 
-def seed(canvas):
+def seed(canvas: list[list[bool]]) -> None:
     for i, row in enumerate(canvas):
         for j, _ in enumerate(row):
             canvas[i][j] = bool(random.getrandbits(1))
 
 
-def run(canvas):
-    """This  function runs the rules of game through all points, and changes their
-    status accordingly.(in the same canvas)
-    @Args:
-    --
-    canvas : canvas of population to run the rules on.
-
-    @returns:
-    --
-    None
+def run(canvas: list[list[bool]]) -> list[list[bool]]:
     """
-    canvas = np.array(canvas)
-    next_gen_canvas = np.array(create_canvas(canvas.shape[0]))
-    for r, row in enumerate(canvas):
+    Run one generation of Conway's Game of Life on the canvas.
+
+    Applies the Game of Life rules to all cells simultaneously to produce
+    the next generation.
+
+    Args:
+        canvas: 2D list representing current state of cells
+
+    Returns:
+        2D list representing the next generation state
+
+    >>> blinker = [[False, False, False, False, False],
+    ...            [False, False, True, False, False],
+    ...            [False, False, True, False, False],
+    ...            [False, False, True, False, False],
+    ...            [False, False, False, False, False]]
+    >>> result = run(blinker)
+    >>> result[2]
+    [False, True, True, True, False]
+    >>> run([[False, False, False], [False, False, False], [False, False, False]])
+    [[False, False, False], [False, False, False], [False, False, False]]
+    >>> block = [[False, False, False, False],
+    ...          [False, True, True, False],
+    ...          [False, True, True, False],
+    ...          [False, False, False, False]]
+    >>> run(block)[1]
+    [False, True, True, False]
+    """
+    current_canvas = np.array(canvas)
+    next_gen_canvas = np.array(create_canvas(current_canvas.shape[0]))
+    for r, row in enumerate(current_canvas):
         for c, pt in enumerate(row):
-            # print(r-1,r+2,c-1,c+2)
             next_gen_canvas[r][c] = __judge_point(
-                pt, canvas[r - 1 : r + 2, c - 1 : c + 2]
+                pt, current_canvas[r - 1 : r + 2, c - 1 : c + 2]
             )
 
-    canvas = next_gen_canvas
-    del next_gen_canvas  # cleaning memory as we move on.
-    return canvas.tolist()
+    return next_gen_canvas.tolist()
 
 
-def __judge_point(pt, neighbours):
+def __judge_point(pt: bool, neighbours: list[list[bool]]) -> bool:
+    """
+    Apply Conway's Game of Life rules to determine the next state of a cell.
+
+    Args:
+        pt: Current state of the cell (True=alive, False=dead)
+        neighbours: 3x3 grid including the cell and its 8 neighbors
+
+    Returns:
+        The next state of the cell
+
+    Rules:
+        1. Live cell with <2 live neighbours dies (under-population)
+        2. Live cell with 2-3 live neighbours survives
+        3. Live cell with >3 live neighbours dies (over-population)
+        4. Dead cell with exactly 3 live neighbours becomes alive
+
+    >>> __judge_point(
+    ...     True, [[True, True, False], [False, True, False], [False, False, False]]
+    ... )
+    True
+    >>> __judge_point(
+    ...     True, [[True, False, False], [False, True, False], [False, False, False]]
+    ... )
+    False
+    >>> __judge_point(
+    ...     True, [[True, True, True], [True, True, False], [False, False, False]]
+    ... )
+    False
+    >>> __judge_point(
+    ...     False, [[True, True, False], [True, False, False], [False, False, False]]
+    ... )
+    True
+    >>> __judge_point(
+    ...     False, [[True, False, False], [False, False, False], [False, False, False]]
+    ... )
+    False
+    """
     dead = 0
     alive = 0
     # finding dead or alive neighbours count.
@@ -98,13 +173,12 @@ def __judge_point(pt, neighbours):
     if pt:
         if alive < 2:
             state = False
-        elif alive == 2 or alive == 3:
+        elif alive in {2, 3}:
             state = True
         elif alive > 3:
             state = False
-    else:
-        if alive == 3:
-            state = True
+    elif alive == 3:
+        state = True
 
     return state
 

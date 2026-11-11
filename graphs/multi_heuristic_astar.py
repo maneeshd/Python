@@ -1,10 +1,13 @@
 import heapq
+import sys
 
 import numpy as np
 
+TPos = tuple[int, int]
+
 
 class PriorityQueue:
-    def __init__(self):
+    def __init__(self) -> None:
         self.elements = []
         self.set = set()
 
@@ -17,7 +20,7 @@ class PriorityQueue:
     def empty(self):
         return len(self.elements) == 0
 
-    def put(self, item, priority):
+    def put(self, item, priority) -> None:
         if item not in self.set:
             heapq.heappush(self.elements, (priority, item))
             self.set.add(item)
@@ -30,10 +33,10 @@ class PriorityQueue:
                 temp.append((pri, x))
                 (pri, x) = heapq.heappop(self.elements)
             temp.append((priority, item))
-            for (pro, xxx) in temp:
+            for pro, xxx in temp:
                 heapq.heappush(self.elements, (pro, xxx))
 
-    def remove_element(self, item):
+    def remove_element(self, item) -> None:
         if item in self.set:
             self.set.remove(item)
             temp = []
@@ -41,7 +44,7 @@ class PriorityQueue:
             while x != item:
                 temp.append((pro, x))
                 (pro, x) = heapq.heappop(self.elements)
-            for (prito, yyy) in temp:
+            for prito, yyy in temp:
                 heapq.heappush(self.elements, (prito, yyy))
 
     def top_show(self):
@@ -53,30 +56,30 @@ class PriorityQueue:
         return (priority, item)
 
 
-def consistent_heuristic(P, goal):
+def consistent_heuristic(p: TPos, goal: TPos):
     # euclidean distance
-    a = np.array(P)
+    a = np.array(p)
     b = np.array(goal)
     return np.linalg.norm(a - b)
 
 
-def heuristic_2(P, goal):
+def heuristic_2(p: TPos, goal: TPos):
     # integer division by time variable
-    return consistent_heuristic(P, goal) // t
+    return consistent_heuristic(p, goal) // t
 
 
-def heuristic_1(P, goal):
+def heuristic_1(p: TPos, goal: TPos):
     # manhattan distance
-    return abs(P[0] - goal[0]) + abs(P[1] - goal[1])
+    return abs(p[0] - goal[0]) + abs(p[1] - goal[1])
 
 
-def key(start, i, goal, g_function):
+def key(start: TPos, i: int, goal: TPos, g_function: dict[TPos, float]):
     ans = g_function[start] + W1 * heuristics[i](start, goal)
     return ans
 
 
-def do_something(back_pointer, goal, start):
-    grid = np.chararray((n, n))
+def do_something(back_pointer, goal, start) -> None:
+    grid = np.char.chararray((n, n))
     for i in range(n):
         for j in range(n):
             grid[i][j] = "*"
@@ -114,15 +117,13 @@ def do_something(back_pointer, goal, start):
         print(x, end=" ")
         x = back_pointer[x]
     print(x)
-    quit()
+    sys.exit()
 
 
-def valid(p):
+def valid(p: TPos) -> bool:
     if p[0] < 0 or p[0] > n - 1:
         return False
-    if p[1] < 0 or p[1] > n - 1:
-        return False
-    return True
+    return not (p[1] < 0 or p[1] > n - 1)
 
 
 def expand_state(
@@ -134,7 +135,7 @@ def expand_state(
     close_list_inad,
     open_list,
     back_pointer,
-):
+) -> None:
     for itera in range(n_heuristic):
         open_list[itera].remove_element(s)
     # print("s", s)
@@ -215,7 +216,6 @@ blocks_blk = [
     (18, 1),
     (19, 1),
 ]
-blocks_no = []
 blocks_all = make_common_ground()
 
 
@@ -233,7 +233,7 @@ goal = (n - 1, n - 1)
 t = 1
 
 
-def multi_a_star(start, goal, n_heuristic):
+def multi_a_star(start: TPos, goal: TPos, n_heuristic: int) -> None:
     g_function = {start: 0, goal: float("inf")}
     back_pointer = {start: -1, goal: -1}
     open_list = []
@@ -243,8 +243,8 @@ def multi_a_star(start, goal, n_heuristic):
         open_list.append(PriorityQueue())
         open_list[i].put(start, key(start, i, goal, g_function))
 
-    close_list_anchor = []
-    close_list_inad = []
+    close_list_anchor: list[int] = []
+    close_list_inad: list[int] = []
     while open_list[0].minkey() < float("inf"):
         for i in range(1, n_heuristic):
             # print(open_list[0].minkey(), open_list[i].minkey())
@@ -268,24 +268,23 @@ def multi_a_star(start, goal, n_heuristic):
                         back_pointer,
                     )
                     close_list_inad.append(get_s)
+            elif g_function[goal] <= open_list[0].minkey():
+                if g_function[goal] < float("inf"):
+                    do_something(back_pointer, goal, start)
             else:
-                if g_function[goal] <= open_list[0].minkey():
-                    if g_function[goal] < float("inf"):
-                        do_something(back_pointer, goal, start)
-                else:
-                    get_s = open_list[0].top_show()
-                    visited.add(get_s)
-                    expand_state(
-                        get_s,
-                        0,
-                        visited,
-                        g_function,
-                        close_list_anchor,
-                        close_list_inad,
-                        open_list,
-                        back_pointer,
-                    )
-                    close_list_anchor.append(get_s)
+                get_s = open_list[0].top_show()
+                visited.add(get_s)
+                expand_state(
+                    get_s,
+                    0,
+                    visited,
+                    g_function,
+                    close_list_anchor,
+                    close_list_inad,
+                    open_list,
+                    back_pointer,
+                )
+                close_list_anchor.append(get_s)
     print("No path found to goal")
     print()
     for i in range(n - 1, -1, -1):

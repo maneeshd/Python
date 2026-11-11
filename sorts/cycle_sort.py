@@ -3,8 +3,14 @@ Code contributed by Honey Sharma
 Source: https://en.wikipedia.org/wiki/Cycle_sort
 """
 
+from typing import Any, Protocol
 
-def cycle_sort(array: list) -> list:
+
+class Comparable(Protocol):
+    def __lt__(self, other: Any, /) -> bool: ...
+
+
+def cycle_sort[T: Comparable](array: list[T]) -> list[T]:
     """
     >>> cycle_sort([4, 3, 2, 1])
     [1, 2, 3, 4]
@@ -15,11 +21,19 @@ def cycle_sort(array: list) -> list:
     >>> cycle_sort([-.1, -.2, 1.3, -.8])
     [-0.8, -0.2, -0.1, 1.3]
 
+    >>> cycle_sort(["c", "a", "b"])
+    ['a', 'b', 'c']
+
+    >>> cycle_sort([1, "a"])
+    Traceback (most recent call last):
+        ...
+    TypeError: '<' not supported between instances of 'str' and 'int'
+
     >>> cycle_sort([])
     []
     """
     array_len = len(array)
-    for cycle_start in range(0, array_len - 1):
+    for cycle_start in range(array_len - 1):
         item = array[cycle_start]
 
         pos = cycle_start

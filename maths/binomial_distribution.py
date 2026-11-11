@@ -1,5 +1,6 @@
 """For more information about the Binomial Distribution -
-    https://en.wikipedia.org/wiki/Binomial_distribution"""
+https://en.wikipedia.org/wiki/Binomial_distribution"""
+
 from math import factorial
 
 
@@ -24,7 +25,7 @@ def binomial_distribution(successes: int, trials: int, prob: float) -> float:
         raise ValueError("the function is defined for non-negative integers")
     if not 0 < prob < 1:
         raise ValueError("prob has to be in range of 1 - 0")
-    probability = (prob ** successes) * ((1 - prob) ** (trials - successes))
+    probability = (prob**successes) * ((1 - prob) ** (trials - successes))
     # Calculate the binomial coefficient: n! / k!(n-k)!
     coefficient = float(factorial(trials))
     coefficient /= factorial(successes) * factorial(trials - successes)
@@ -35,6 +36,6 @@ if __name__ == "__main__":
     from doctest import testmod
 
     testmod()
-    print("Probability of 2 successes out of 4 trails")
+    print("Probability of 2 successes out of 4 trials")
     print("with probability of 0.75 is:", end=" ")
     print(binomial_distribution(2, 4, 0.75))

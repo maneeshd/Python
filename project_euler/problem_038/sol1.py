@@ -3,9 +3,9 @@ Project Euler Problem 38: https://projecteuler.net/problem=38
 
 Take the number 192 and multiply it by each of 1, 2, and 3:
 
-192 × 1 = 192
-192 × 2 = 384
-192 × 3 = 576
+192 x 1 = 192
+192 x 2 = 384
+192 x 3 = 576
 
 By concatenating each product we get the 1 to 9 pandigital, 192384576. We will call
 192384576 the concatenated product of 192 and (1,2,3)
@@ -38,7 +38,7 @@ a has 3 digits, etc...
                               = 1002003 * a
 """
 
-from typing import Union
+from __future__ import annotations
 
 
 def is_9_pandigital(n: int) -> bool:
@@ -55,7 +55,7 @@ def is_9_pandigital(n: int) -> bool:
     return len(s) == 9 and set(s) == set("123456789")
 
 
-def solution() -> Union[int, None]:
+def solution() -> int | None:
     """
     Return the largest 1 to 9 pandigital 9-digital number that can be formed as the
     concatenated product of an integer with (1,2,...,n) where n > 1.

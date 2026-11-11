@@ -5,8 +5,6 @@ https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
 from __future__ import annotations
 
-from typing import List
-
 from PIL import Image
 
 # Define glider example
@@ -25,7 +23,7 @@ GLIDER = [
 BLINKER = [[0, 1, 0], [0, 1, 0], [0, 1, 0]]
 
 
-def new_generation(cells: List[List[int]]) -> List[List[int]]:
+def new_generation(cells: list[list[int]]) -> list[list[int]]:
     """
     Generates the next generation for a given state of Conway's Game of Life.
     >>> new_generation(BLINKER)
@@ -60,10 +58,8 @@ def new_generation(cells: List[List[int]]) -> List[List[int]]:
             # 3. All other live cells die in the next generation.
             #    Similarly, all other dead cells stay dead.
             alive = cells[i][j] == 1
-            if (
-                (alive and 2 <= neighbour_count <= 3)
-                or not alive
-                and neighbour_count == 3
+            if (alive and 2 <= neighbour_count <= 3) or (
+                not alive and neighbour_count == 3
             ):
                 next_generation_row.append(1)
             else:
@@ -73,7 +69,7 @@ def new_generation(cells: List[List[int]]) -> List[List[int]]:
     return next_generation
 
 
-def generate_images(cells: list[list[int]], frames) -> list[Image.Image]:
+def generate_images(cells: list[list[int]], frames: int) -> list[Image.Image]:
     """
     Generates a list of images of subsequent Game of Life states.
     """
@@ -82,6 +78,7 @@ def generate_images(cells: list[list[int]], frames) -> list[Image.Image]:
         # Create output image
         img = Image.new("RGB", (len(cells[0]), len(cells)))
         pixels = img.load()
+        assert pixels is not None
 
         # Save cells to image
         for x in range(len(cells)):

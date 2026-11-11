@@ -17,10 +17,20 @@ with your token::
 #!/usr/bin/env bash
 export USER_TOKEN=""
 """
-import os
-from typing import Any, Dict
 
-import requests
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "httpx2",
+# ]
+# ///
+
+from __future__ import annotations
+
+import os
+from typing import Any
+
+import httpx2
 
 BASE_URL = "https://api.github.com"
 
@@ -31,15 +41,15 @@ AUTHENTICATED_USER_ENDPOINT = BASE_URL + "/user"
 USER_TOKEN = os.environ.get("USER_TOKEN", "")
 
 
-def fetch_github_info(auth_token: str) -> Dict[Any, Any]:
+def fetch_github_info(auth_token: str) -> dict[Any, Any]:
     """
-    Fetch GitHub info of a user using the requests module
+    Fetch GitHub info of a user using the httpx2 module
     """
     headers = {
         "Authorization": f"token {auth_token}",
         "Accept": "application/vnd.github.v3+json",
     }
-    return requests.get(AUTHENTICATED_USER_ENDPOINT, headers=headers).json()
+    return httpx2.get(AUTHENTICATED_USER_ENDPOINT, headers=headers, timeout=10).json()
 
 
 if __name__ == "__main__":  # pragma: no cover

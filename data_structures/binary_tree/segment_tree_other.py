@@ -3,12 +3,13 @@ Segment_tree creates a segment tree with a given array and function,
 allowing queries to be done later in log(N) time
 function takes 2 values and returns a same type value
 """
+
 from collections.abc import Sequence
 from queue import Queue
 
 
 class SegmentTreeNode:
-    def __init__(self, start, end, val, left=None, right=None):
+    def __init__(self, start, end, val, left=None, right=None) -> None:
         self.start = start
         self.end = end
         self.val = val
@@ -16,40 +17,36 @@ class SegmentTreeNode:
         self.left = left
         self.right = right
 
-    def __str__(self):
-        return f"val: {self.val}, start: {self.start}, end: {self.end}"
+    def __repr__(self) -> str:
+        return f"SegmentTreeNode(start={self.start}, end={self.end}, val={self.val})"
 
 
 class SegmentTree:
     """
     >>> import operator
     >>> num_arr = SegmentTree([2, 1, 5, 3, 4], operator.add)
-    >>> for node in num_arr.traverse():
-    ...     print(node)
-    ...
-    val: 15, start: 0, end: 4
-    val: 8, start: 0, end: 2
-    val: 7, start: 3, end: 4
-    val: 3, start: 0, end: 1
-    val: 5, start: 2, end: 2
-    val: 3, start: 3, end: 3
-    val: 4, start: 4, end: 4
-    val: 2, start: 0, end: 0
-    val: 1, start: 1, end: 1
+    >>> tuple(num_arr.traverse())  # doctest: +NORMALIZE_WHITESPACE
+    (SegmentTreeNode(start=0, end=4, val=15),
+        SegmentTreeNode(start=0, end=2, val=8),
+        SegmentTreeNode(start=3, end=4, val=7),
+        SegmentTreeNode(start=0, end=1, val=3),
+        SegmentTreeNode(start=2, end=2, val=5),
+        SegmentTreeNode(start=3, end=3, val=3),
+        SegmentTreeNode(start=4, end=4, val=4),
+        SegmentTreeNode(start=0, end=0, val=2),
+        SegmentTreeNode(start=1, end=1, val=1))
     >>>
     >>> num_arr.update(1, 5)
-    >>> for node in num_arr.traverse():
-    ...     print(node)
-    ...
-    val: 19, start: 0, end: 4
-    val: 12, start: 0, end: 2
-    val: 7, start: 3, end: 4
-    val: 7, start: 0, end: 1
-    val: 5, start: 2, end: 2
-    val: 3, start: 3, end: 3
-    val: 4, start: 4, end: 4
-    val: 2, start: 0, end: 0
-    val: 5, start: 1, end: 1
+    >>> tuple(num_arr.traverse())  # doctest: +NORMALIZE_WHITESPACE
+    (SegmentTreeNode(start=0, end=4, val=19),
+        SegmentTreeNode(start=0, end=2, val=12),
+        SegmentTreeNode(start=3, end=4, val=7),
+        SegmentTreeNode(start=0, end=1, val=7),
+        SegmentTreeNode(start=2, end=2, val=5),
+        SegmentTreeNode(start=3, end=3, val=3),
+        SegmentTreeNode(start=4, end=4, val=4),
+        SegmentTreeNode(start=0, end=0, val=2),
+        SegmentTreeNode(start=1, end=1, val=5))
     >>>
     >>> num_arr.query_range(3, 4)
     7
@@ -62,29 +59,29 @@ class SegmentTree:
     >>> for node in max_arr.traverse():
     ...     print(node)
     ...
-    val: 5, start: 0, end: 4
-    val: 5, start: 0, end: 2
-    val: 4, start: 3, end: 4
-    val: 2, start: 0, end: 1
-    val: 5, start: 2, end: 2
-    val: 3, start: 3, end: 3
-    val: 4, start: 4, end: 4
-    val: 2, start: 0, end: 0
-    val: 1, start: 1, end: 1
+    SegmentTreeNode(start=0, end=4, val=5)
+    SegmentTreeNode(start=0, end=2, val=5)
+    SegmentTreeNode(start=3, end=4, val=4)
+    SegmentTreeNode(start=0, end=1, val=2)
+    SegmentTreeNode(start=2, end=2, val=5)
+    SegmentTreeNode(start=3, end=3, val=3)
+    SegmentTreeNode(start=4, end=4, val=4)
+    SegmentTreeNode(start=0, end=0, val=2)
+    SegmentTreeNode(start=1, end=1, val=1)
     >>>
     >>> max_arr.update(1, 5)
     >>> for node in max_arr.traverse():
     ...     print(node)
     ...
-    val: 5, start: 0, end: 4
-    val: 5, start: 0, end: 2
-    val: 4, start: 3, end: 4
-    val: 5, start: 0, end: 1
-    val: 5, start: 2, end: 2
-    val: 3, start: 3, end: 3
-    val: 4, start: 4, end: 4
-    val: 2, start: 0, end: 0
-    val: 5, start: 1, end: 1
+    SegmentTreeNode(start=0, end=4, val=5)
+    SegmentTreeNode(start=0, end=2, val=5)
+    SegmentTreeNode(start=3, end=4, val=4)
+    SegmentTreeNode(start=0, end=1, val=5)
+    SegmentTreeNode(start=2, end=2, val=5)
+    SegmentTreeNode(start=3, end=3, val=3)
+    SegmentTreeNode(start=4, end=4, val=4)
+    SegmentTreeNode(start=0, end=0, val=2)
+    SegmentTreeNode(start=1, end=1, val=5)
     >>>
     >>> max_arr.query_range(3, 4)
     4
@@ -97,29 +94,29 @@ class SegmentTree:
     >>> for node in min_arr.traverse():
     ...     print(node)
     ...
-    val: 1, start: 0, end: 4
-    val: 1, start: 0, end: 2
-    val: 3, start: 3, end: 4
-    val: 1, start: 0, end: 1
-    val: 5, start: 2, end: 2
-    val: 3, start: 3, end: 3
-    val: 4, start: 4, end: 4
-    val: 2, start: 0, end: 0
-    val: 1, start: 1, end: 1
+    SegmentTreeNode(start=0, end=4, val=1)
+    SegmentTreeNode(start=0, end=2, val=1)
+    SegmentTreeNode(start=3, end=4, val=3)
+    SegmentTreeNode(start=0, end=1, val=1)
+    SegmentTreeNode(start=2, end=2, val=5)
+    SegmentTreeNode(start=3, end=3, val=3)
+    SegmentTreeNode(start=4, end=4, val=4)
+    SegmentTreeNode(start=0, end=0, val=2)
+    SegmentTreeNode(start=1, end=1, val=1)
     >>>
     >>> min_arr.update(1, 5)
     >>> for node in min_arr.traverse():
     ...     print(node)
     ...
-    val: 2, start: 0, end: 4
-    val: 2, start: 0, end: 2
-    val: 3, start: 3, end: 4
-    val: 2, start: 0, end: 1
-    val: 5, start: 2, end: 2
-    val: 3, start: 3, end: 3
-    val: 4, start: 4, end: 4
-    val: 2, start: 0, end: 0
-    val: 5, start: 1, end: 1
+    SegmentTreeNode(start=0, end=4, val=2)
+    SegmentTreeNode(start=0, end=2, val=2)
+    SegmentTreeNode(start=3, end=4, val=3)
+    SegmentTreeNode(start=0, end=1, val=2)
+    SegmentTreeNode(start=2, end=2, val=5)
+    SegmentTreeNode(start=3, end=3, val=3)
+    SegmentTreeNode(start=4, end=4, val=4)
+    SegmentTreeNode(start=0, end=0, val=2)
+    SegmentTreeNode(start=1, end=1, val=5)
     >>>
     >>> min_arr.query_range(3, 4)
     3
@@ -128,16 +125,15 @@ class SegmentTree:
     >>> min_arr.query_range(1, 3)
     3
     >>>
-
     """
 
-    def __init__(self, collection: Sequence, function):
+    def __init__(self, collection: Sequence, function) -> None:
         self.collection = collection
         self.fn = function
         if self.collection:
             self.root = self._build_tree(0, len(collection) - 1)
 
-    def update(self, i, val):
+    def update(self, i, val) -> None:
         """
         Update an element in log(N) time
         :param i: position to be update
@@ -177,7 +173,7 @@ class SegmentTree:
         right = self._build_tree(mid + 1, end)
         return SegmentTreeNode(start, end, self.fn(left.val, right.val), left, right)
 
-    def _update_tree(self, node, i, val):
+    def _update_tree(self, node, i, val) -> None:
         if node.start == i and node.end == i:
             node.val = val
             return

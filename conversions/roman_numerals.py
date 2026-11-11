@@ -1,3 +1,20 @@
+ROMAN = [
+    (1000, "M"),
+    (900, "CM"),
+    (500, "D"),
+    (400, "CD"),
+    (100, "C"),
+    (90, "XC"),
+    (50, "L"),
+    (40, "XL"),
+    (10, "X"),
+    (9, "IX"),
+    (5, "V"),
+    (4, "IV"),
+    (1, "I"),
+]
+
+
 def roman_to_int(roman: str) -> int:
     """
     LeetCode No. 13 Roman to Integer
@@ -23,29 +40,37 @@ def roman_to_int(roman: str) -> int:
 
 def int_to_roman(number: int) -> str:
     """
-    Given a integer, convert it to an roman numeral.
+    Given an integer, convert it to a Roman numeral.
+    Input must be an integer in the range 1 to 3999.
     https://en.wikipedia.org/wiki/Roman_numerals
     >>> tests = {"III": 3, "CLIV": 154, "MIX": 1009, "MMD": 2500, "MMMCMXCIX": 3999}
     >>> all(int_to_roman(value) == key for key, value in tests.items())
     True
+    >>> int_to_roman(0)
+    Traceback (most recent call last):
+        ...
+    ValueError: int_to_roman only accepts integers in the range 1 to 3999, got 0
+    >>> int_to_roman(-1)
+    Traceback (most recent call last):
+        ...
+    ValueError: int_to_roman only accepts integers in the range 1 to 3999, got -1
+    >>> int_to_roman(4000)
+    Traceback (most recent call last):
+        ...
+    ValueError: int_to_roman only accepts integers in the range 1 to 3999, got 4000
+    >>> int_to_roman(True)
+    Traceback (most recent call last):
+        ...
+    TypeError: int_to_roman only accepts integers, got bool
     """
-    ROMAN = [
-        (1000, "M"),
-        (900, "CM"),
-        (500, "D"),
-        (400, "CD"),
-        (100, "C"),
-        (90, "XC"),
-        (50, "L"),
-        (40, "XL"),
-        (10, "X"),
-        (9, "IX"),
-        (5, "V"),
-        (4, "IV"),
-        (1, "I"),
-    ]
+    if isinstance(number, bool) or not isinstance(number, int):
+        msg = f"int_to_roman only accepts integers, got {type(number).__name__}"
+        raise TypeError(msg)
+    if not 1 <= number <= 3999:
+        msg = f"int_to_roman only accepts integers in the range 1 to 3999, got {number}"
+        raise ValueError(msg)
     result = []
-    for (arabic, roman) in ROMAN:
+    for arabic, roman in ROMAN:
         (factor, number) = divmod(number, arabic)
         result.append(roman * factor)
         if number == 0:

@@ -9,7 +9,7 @@ class MarkovChainGraphUndirectedUnweighted:
     Undirected Unweighted Graph for running Markov Chain Algorithm
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.connections = {}
 
     def add_node(self, node: str) -> None:
@@ -35,6 +35,7 @@ class MarkovChainGraphUndirectedUnweighted:
             current_probability += self.connections[node][dest]
             if current_probability > random_value:
                 return dest
+        return ""
 
 
 def get_transitions(

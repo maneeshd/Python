@@ -10,10 +10,11 @@ python3 -m doctest -v fibonacci_search.py
 For manual testing run:
 python3 fibonacci_search.py
 """
+
 from functools import lru_cache
 
 
-@lru_cache()
+@lru_cache
 def fibonacci(k: int) -> int:
     """Finds fibonacci number in index k.
 
@@ -46,12 +47,13 @@ def fibonacci(k: int) -> int:
         raise TypeError("k must be an integer.")
     if k < 0:
         raise ValueError("k integer must be greater or equal to zero.")
-    if k == 0:
-        return 0
-    elif k == 1:
-        return 1
-    else:
-        return fibonacci(k - 1) + fibonacci(k - 2)
+    match k:
+        case 0:
+            return 0
+        case 1:
+            return 1
+        case _:
+            return fibonacci(k - 1) + fibonacci(k - 2)
 
 
 def fibonacci_search(arr: list, val: int) -> int:
@@ -122,8 +124,7 @@ def fibonacci_search(arr: list, val: int) -> int:
         elif val > item_k_1:
             offset += fibonacci(fibb_k - 1)
             fibb_k -= 2
-    else:
-        return -1
+    return -1
 
 
 if __name__ == "__main__":

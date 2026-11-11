@@ -28,10 +28,12 @@ Solution:
     Reference: https://en.wikipedia.org/wiki/Prim%27s_algorithm
 """
 
-import os
-from typing import Dict, List, Mapping, Set, Tuple
+from __future__ import annotations
 
-EdgeT = Tuple[int, int]
+import os
+from collections.abc import Mapping
+
+EdgeT = tuple[int, int]
 
 
 class Graph:
@@ -39,9 +41,9 @@ class Graph:
     A class representing an undirected weighted graph.
     """
 
-    def __init__(self, vertices: Set[int], edges: Mapping[EdgeT, int]) -> None:
-        self.vertices: Set[int] = vertices
-        self.edges: Dict[EdgeT, int] = {
+    def __init__(self, vertices: set[int], edges: Mapping[EdgeT, int]) -> None:
+        self.vertices: set[int] = vertices
+        self.edges: dict[EdgeT, int] = {
             (min(edge), max(edge)): weight for edge, weight in edges.items()
         }
 
@@ -59,7 +61,7 @@ class Graph:
         self.vertices.add(edge[1])
         self.edges[(min(edge), max(edge))] = weight
 
-    def prims_algorithm(self) -> "Graph":
+    def prims_algorithm(self) -> Graph:
         """
         Run Prim's algorithm to find the minimum spanning tree.
         Reference: https://en.wikipedia.org/wiki/Prim%27s_algorithm
@@ -79,10 +81,11 @@ class Graph:
         while len(subgraph.vertices) < len(self.vertices):
             min_weight = max(self.edges.values()) + 1
             for edge, weight in self.edges.items():
-                if (edge[0] in subgraph.vertices) ^ (edge[1] in subgraph.vertices):
-                    if weight < min_weight:
-                        min_edge = edge
-                        min_weight = weight
+                if (edge[0] in subgraph.vertices) ^ (
+                    edge[1] in subgraph.vertices
+                ) and weight < min_weight:
+                    min_edge = edge
+                    min_weight = weight
 
             subgraph.add_edge(min_edge, min_weight)
 
@@ -98,13 +101,12 @@ def solution(filename: str = "p107_network.txt") -> int:
     """
     script_dir: str = os.path.abspath(os.path.dirname(__file__))
     network_file: str = os.path.join(script_dir, filename)
-    adjacency_matrix: List[List[str]]
-    edges: Dict[EdgeT, int] = dict()
-    data: List[str]
+    edges: dict[EdgeT, int] = {}
+    data: list[str]
     edge1: int
     edge2: int
 
-    with open(network_file, "r") as f:
+    with open(network_file) as f:
         data = f.read().strip().split("\n")
 
     adjaceny_matrix = [line.split(",") for line in data]

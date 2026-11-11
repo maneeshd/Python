@@ -10,7 +10,7 @@ Time Complexity: O(n) - where n is the length of the string
 """
 
 
-def z_function(input_str: str) -> list:
+def z_function(input_str: str) -> list[int]:
     """
     For the given string this function computes value for each index,
     which represents the maximal length substring starting from the index
@@ -27,7 +27,7 @@ def z_function(input_str: str) -> list:
     >>> z_function("zxxzxxz")
     [0, 0, 0, 4, 0, 0, 1]
     """
-    z_result = [0] * len(input_str)
+    z_result = [0 for i in range(len(input_str))]
 
     # initialize interval's left pointer and right pointer
     left_pointer, right_pointer = 0, 0
@@ -49,7 +49,7 @@ def z_function(input_str: str) -> list:
     return z_result
 
 
-def go_next(i, z_result, s):
+def go_next(i: int, z_result: list[int], s: str) -> bool:
     """
     Check if we have to move forward to the next characters or not
     """
@@ -68,20 +68,15 @@ def find_pattern(pattern: str, input_str: str) -> int:
     4
     >>> find_pattern("xz", "zxxzxxz")
     2
+    >>> find_pattern("aa", "a")
+    0
     """
-    answer = 0
+    pattern_length = len(pattern)
     # concatenate 'pattern' and 'input_str' and call z_function
     # with concatenated string
     z_result = z_function(pattern + input_str)
 
-    for val in z_result:
-        # if value is greater then length of the pattern string
-        # that means this index is starting position of substring
-        # which is equal to pattern string
-        if val >= len(pattern):
-            answer += 1
-
-    return answer
+    return sum(value >= pattern_length for value in z_result[pattern_length:])
 
 
 if __name__ == "__main__":

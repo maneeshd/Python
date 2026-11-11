@@ -39,7 +39,7 @@ def bailey_borwein_plouffe(digit_position: int, precision: int = 1000) -> str:
     """
     if (not isinstance(digit_position, int)) or (digit_position <= 0):
         raise ValueError("Digit position must be a positive integer")
-    elif (not isinstance(precision, int)) or (precision < 0):
+    if (not isinstance(precision, int)) or (precision < 0):
         raise ValueError("Precision must be a nonnegative integer")
 
     # compute an approximation of (16 ** (n - 1)) * pi whose fractional part is mostly
@@ -67,7 +67,7 @@ def _subsum(
     @param precision: same as precision in main function
     @return: floating-point number whose integer part is not important
     """
-    sum = 0.0
+    total = 0.0
     for sum_index in range(digit_pos_to_extract + precision):
         denominator = 8 * sum_index + denominator_addend
         if sum_index < digit_pos_to_extract:
@@ -79,8 +79,8 @@ def _subsum(
             )
         else:
             exponential_term = pow(16, digit_pos_to_extract - 1 - sum_index)
-        sum += exponential_term / denominator
-    return sum
+        total += exponential_term / denominator
+    return total
 
 
 if __name__ == "__main__":

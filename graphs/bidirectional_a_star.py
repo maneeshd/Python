@@ -1,5 +1,8 @@
 """
 https://en.wikipedia.org/wiki/Bidirectional_search
+
+Run this file with --benchmark to time a search on a 45 by 45 grid.
+The grid has 2,025 cells, with a single 89-cell staircase corridor.
 """
 
 from __future__ import annotations
@@ -22,6 +25,8 @@ grid = [
 
 delta = [[-1, 0], [0, -1], [1, 0], [0, 1]]  # up, left, down, right
 
+TPosition = tuple[int, int]
+
 
 class Node:
     """
@@ -39,7 +44,15 @@ class Node:
     True
     """
 
-    def __init__(self, pos_x, pos_y, goal_x, goal_y, g_cost, parent):
+    def __init__(
+        self,
+        pos_x: int,
+        pos_y: int,
+        goal_x: int,
+        goal_y: int,
+        g_cost: int,
+        parent: Node | None,
+    ) -> None:
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.pos = (pos_y, pos_x)
@@ -59,9 +72,9 @@ class Node:
         if HEURISTIC == 1:
             return abs(dx) + abs(dy)
         else:
-            return sqrt(dy ** 2 + dx ** 2)
+            return sqrt(dy**2 + dx**2)
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: Node) -> bool:
         return self.f_cost < other.f_cost
 
 
@@ -81,23 +94,22 @@ class AStar:
      (4, 3), (4, 4), (5, 4), (5, 5), (6, 5), (6, 6)]
     """
 
-    def __init__(self, start, goal):
+    def __init__(self, start: TPosition, goal: TPosition) -> None:
         self.start = Node(start[1], start[0], goal[1], goal[0], 0, None)
         self.target = Node(goal[1], goal[0], goal[1], goal[0], 99999, None)
 
         self.open_nodes = [self.start]
-        self.closed_nodes = []
+        self.closed_nodes: list[Node] = []
 
         self.reached = False
 
-    def search(self) -> list[tuple[int]]:
+    def search(self) -> list[TPosition]:
         while self.open_nodes:
             # Open Nodes are sorted using __lt__
             self.open_nodes.sort()
             current_node = self.open_nodes.pop(0)
 
             if current_node.pos == self.target.pos:
-                self.reached = True
                 return self.retrace_path(current_node)
 
             self.closed_nodes.append(current_node)
@@ -118,8 +130,7 @@ class AStar:
                     else:
                         self.open_nodes.append(better_node)
 
-        if not (self.reached):
-            return [(self.start.pos)]
+        return [self.start.pos]
 
     def get_successors(self, parent: Node) -> list[Node]:
         """
@@ -147,7 +158,7 @@ class AStar:
             )
         return successors
 
-    def retrace_path(self, node: Node) -> list[tuple[int]]:
+    def retrace_path(self, node: Node | None) -> list[TPosition]:
         """
         Retrace the path from parents to parents until start node
         """
@@ -171,22 +182,40 @@ class BidirectionalAStar:
     >>> bd_astar.search()  # doctest: +NORMALIZE_WHITESPACE
     [(0, 0), (0, 1), (0, 2), (1, 2), (1, 3), (2, 3), (2, 4),
      (2, 5), (3, 5), (4, 5), (5, 5), (5, 6), (6, 6)]
+
+    An isolated endpoint exhausts one frontier before the other.
+    >>> original_grid = grid[:]
+    >>> grid[:] = [[0, 1, 0], [1, 1, 0]]
+    >>> BidirectionalAStar((0, 0), (0, 2)).search()
+    [(0, 0)]
+    >>> BidirectionalAStar((0, 2), (0, 0)).search()
+    [(0, 2)]
+
+    Both frontiers can also empty together, without a path.
+    >>> grid[:] = [[0, 1, 0]]
+    >>> BidirectionalAStar((0, 0), (0, 2)).search()
+    [(0, 0)]
+
+    A reachable corridor still returns the complete path.
+    >>> grid[:] = [[0, 0, 0]]
+    >>> BidirectionalAStar((0, 0), (0, 2)).search()
+    [(0, 0), (0, 1), (0, 2)]
+    >>> grid[:] = original_grid
     """
 
-    def __init__(self, start, goal):
+    def __init__(self, start: TPosition, goal: TPosition) -> None:
         self.fwd_astar = AStar(start, goal)
         self.bwd_astar = AStar(goal, start)
         self.reached = False
 
-    def search(self) -> list[tuple[int]]:
-        while self.fwd_astar.open_nodes or self.bwd_astar.open_nodes:
+    def search(self) -> list[TPosition]:
+        while self.fwd_astar.open_nodes and self.bwd_astar.open_nodes:
             self.fwd_astar.open_nodes.sort()
             self.bwd_astar.open_nodes.sort()
             current_fwd_node = self.fwd_astar.open_nodes.pop(0)
             current_bwd_node = self.bwd_astar.open_nodes.pop(0)
 
             if current_bwd_node.pos == current_fwd_node.pos:
-                self.reached = True
                 return self.retrace_bidirectional_path(
                     current_fwd_node, current_bwd_node
                 )
@@ -220,12 +249,11 @@ class BidirectionalAStar:
                         else:
                             astar.open_nodes.append(better_node)
 
-        if not self.reached:
-            return [self.fwd_astar.start.pos]
+        return [self.fwd_astar.start.pos]
 
     def retrace_bidirectional_path(
         self, fwd_node: Node, bwd_node: Node
-    ) -> list[tuple[int]]:
+    ) -> list[TPosition]:
         fwd_path = self.fwd_astar.retrace_path(fwd_node)
         bwd_path = self.bwd_astar.retrace_path(bwd_node)
         bwd_path.pop()
@@ -236,9 +264,6 @@ class BidirectionalAStar:
 
 if __name__ == "__main__":
     # all coordinates are given in format [y,x]
-    import doctest
-
-    doctest.testmod()
     init = (0, 0)
     goal = (len(grid) - 1, len(grid[0]) - 1)
     for elem in grid:
@@ -252,6 +277,35 @@ if __name__ == "__main__":
 
     bd_start_time = time.time()
     bidir_astar = BidirectionalAStar(init, goal)
-    path = bidir_astar.search()
     bd_end_time = time.time() - bd_start_time
     print(f"BidirectionalAStar execution time = {bd_end_time:f} seconds")
+
+    import sys
+
+    if "--benchmark" in sys.argv:
+        from timeit import repeat
+
+        # A single staircase corridor gives both versions the same reachable path.
+        # Keep grid construction and the correctness check outside the timing.
+        size = 45
+        grid = [[1] * size for _ in range(size)]
+        expected_path = []
+        for offset in range(size):
+            grid[offset][offset] = 0
+            expected_path.append((offset, offset))
+            if offset < size - 1:
+                grid[offset][offset + 1] = 0
+                expected_path.append((offset, offset + 1))
+        init, goal = (0, 0), (size - 1, size - 1)
+        assert BidirectionalAStar(init, goal).search() == expected_path
+
+        searches = 100
+        samples = repeat(
+            "BidirectionalAStar(init, goal).search()",
+            globals=globals(),
+            number=searches,
+            repeat=5,
+        )
+        print(f"Benchmark: {size * size} cells, {len(expected_path)} traversable")
+        print(f"Seconds per search ({searches} searches per sample):")
+        print([sample / searches for sample in samples])
